@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import SupplyChain from "../../artifacts/contracts/SupplyChain.sol/SupplyChain.json";
 
-const CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS || "";
 
 export const getContract = async () => {
 
@@ -10,16 +10,17 @@ export const getContract = async () => {
         return null;
     }
 
+    if (!CONTRACT_ADDRESS) {
+        alert(
+            "Please set VITE_CONTRACT_ADDRESS in frontend/.env to your Remix-deployed contract address."
+        );
+        return null;
+    }
+
     await window.ethereum.request({ method: "eth_requestAccounts" });
 
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner();
 
-    const contract = new ethers.Contract(
-        CONTRACT_ADDRESS,
-        SupplyChain.abi,
-        signer
-    );
-
-    return contract;
+    return new ethers.Contract(CONTRACT_ADDRESS, SupplyChain.abi, signer);
 };
